@@ -1,0 +1,170 @@
+{
+  "name": "Agente autónomo básico funcional",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -288,
+        -32
+      ],
+      "id": "b4b9040b-ecef-4b8d-b22e-3987dbe15fea",
+      "name": "When chat message received",
+      "webhookId": "8e3ff85f-785c-4b1f-9559-8e2425889136"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "[ROL]\nEres un Asistente Corporativo de Calificación e Ingreso de Leads para la empresa.\n\n[OBJETIVO]\nProcesar las consultas de los usuarios, determinar la información relevante e interactuar de forma clara y profesional.\n\n[REGLAS Y RESTRICCIONES]\n- Responde de forma concisa, profesional y directa.\n- Si el usuario solicita guardar o enviar información, utiliza la herramienta (Tool) disponible.\n- No inventes ni asumas información no proporcionada.\n- Queda estrictamente prohibido solicitar o procesar credenciales, contraseñas, números de tarjeta de crédito o datos sensibles de usuarios.",
+          "maxIterations": 5
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -64,
+        -32
+      ],
+      "id": "3b9ec764-2960-4851-a079-7d51c7672853",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -96,
+        192
+      ],
+      "id": "e6073e79-3537-4c9d-a521-976f58e84167",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Utiliza esta herramienta únicamente cuando el usuario solicite de forma explícita o implícita enviar una propuesta formal, cotización, reporte o mensaje por correo electrónico a un destinatario específico. Extrae la dirección de correo proporcionada en el chat y genera un cuerpo de mensaje profesional y personalizado basado en los requerimientos del cliente. No utilices esta herramienta si el usuario solo está haciendo preguntas generales o conversando sin solicitar un envío explícito de información por email.",
+        "sendTo": "={{ $fromAI('To', 'Correo del destinatario') }}",
+        "subject": "Respuesta Asistente AI",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', `El texto de la respuesta redactada para el cliente`, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        144,
+        192
+      ],
+      "id": "51402020-de86-40c8-bacc-e1cd8268d2a0",
+      "name": "Send a message in Gmail",
+      "webhookId": "53aab4fe-f53b-423e-902e-eaaa29b7cc16",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KPu3sm2aBrThhTJr",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "ortega.lucena.belen@gmail.com",
+        "subject": "[Auditoría n8n] Reporte de ejecución del Agente AI",
+        "message": "=Se ha ejecutado el Checkpoint 1 exitosamente.\n\nResumen de la salida del Agente AI:\n{{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        304,
+        -32
+      ],
+      "id": "b2561ea0-b792-4235-aa8c-3cd9f028a102",
+      "name": "Send a message",
+      "webhookId": "f9037a73-c08b-490e-b13d-1c8a1c58302e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KPu3sm2aBrThhTJr",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "561a081c-f719-473e-bba8-ea9ab29a43bd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5b4c29ac1ce8aed238fbd1e4e34218d4ff50be5d1b6e1bbb626fd0554cabcb40"
+  },
+  "nodeGroups": [],
+  "id": "cjBAP5Xjsxd919g2",
+  "tags": []
+}
